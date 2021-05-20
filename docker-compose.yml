@@ -1,8 +1,37 @@
 version: "3.3"
 services: 
-    web:
-        build: .
+    mysql:
+        image: mysql:5.7.31
+        container_name: db
+        env_file: ./.env
+        environment: 
+            MYSQL_DATABASE: ${DB_DATABASE}
+            MYSQL_USER: ${DB_USERNAME}
+            MYSQL_PASSWORD: ${DB_PASSWORD}
+            MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+            SERVICE_TAGS: dev
+            SERVICE_NAME: mysql
         ports: 
-            - "4000:4000"
+            - "${DB_PORT}:3306"
+        volumes:
+            - ./.docker/volumes/mysql/data:/var/lib/mysql
+            - ./.docker/volumes/mysql/backup:/data_backup/data
+    web:
+        restart: always
+        env_file: ./.env
+        build: 
+            context: .
+            dockerfile: /.docker/nodejs/Dockerfile
+        ports: 
+            - "${PORT}:${PORT}"
+        depends_on: 
+            - mysql
+            - redis
     redis:
         image: "redis:alpine"
+        ports: 
+            - "6379:6379"
+        volumes: 
+            - ./.docker/volumes/redis:/data
+networks:
+    default:
