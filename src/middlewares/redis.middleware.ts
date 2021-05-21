@@ -2,7 +2,6 @@ const redis = require("redis");
 import { Injectable, NestMiddleware } from '@nestjs/common';
 import { Request, Response, NextFunction } from 'express'; 
 
-console.log(redis);
 const client = redis.createClient({
     port      : 6379,
     host      : 'redis'

@@ -16,12 +16,12 @@ export class UsersService {
         return this.userRepository.find();
     }
 
-    async findOne(id: string): Promise<User> {
-        return this.userRepository.findOne({
-            where: {
-                user_id: id
-            }
-        })
+    async findOneById(id: number): Promise<User | undefined> {
+        return this.userRepository.findOne({ user_id: id });
+    }
+
+    async findOne(name: string): Promise<User | undefined> {
+        return this.userRepository.findOne({ name: name });
     }
 
     async create(createUserDto: CreateUserDto): Promise<User> {
@@ -37,8 +37,8 @@ export class UsersService {
         return user;
     }
 
-    async update(id: string, updateUserDto: UpdateUserDto): Promise<User> {
-        const user = await this.findOne(id);
+    async update(id: number, updateUserDto: UpdateUserDto): Promise<User> {
+        const user = await this.findOneById(id);
         
         Object.keys(updateUserDto).forEach(key => {
             if (updateUserDto[key]) {
@@ -52,8 +52,8 @@ export class UsersService {
 
     }
 
-    async remove(id: string) {
-        const user = await this.findOne(id);
+    async remove(id: number) {
+        const user = await this.findOneById(id);
         await this.userRepository.remove(user);
         return;
     }

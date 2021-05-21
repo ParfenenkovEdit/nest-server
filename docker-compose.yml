@@ -21,7 +21,6 @@ services:
             - ./.docker/volumes/mysql/data:/var/lib/mysql
             - ./.docker/volumes/mysql/backup:/data_backup/data
     web:
-        restart: always
         env_file: ./.env
         build: 
             context: .

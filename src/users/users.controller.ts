@@ -12,8 +12,8 @@ export class UsersController {
     }
 
     @Get(':id')
-    getById(@Param('id') id: string) {
-        return this.userService.findOne(id);
+    getById(@Param('id') id: number) {
+        return this.userService.findOneById(id);
     }
 
     @Post()
@@ -23,12 +23,12 @@ export class UsersController {
 
     @Delete(':id')
     @HttpCode(HttpStatus.NO_CONTENT)
-    remove(@Param('id') id: string) {
+    remove(@Param('id') id: number) {
         return this.userService.remove(id);
     }
 
     @Put(':id')
-    update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
+    update(@Param('id') id: number, @Body() updateUserDto: UpdateUserDto) {
         return this.userService.update(id, updateUserDto);
     }
 }
