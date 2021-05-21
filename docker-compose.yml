@@ -13,6 +13,10 @@ services:
             SERVICE_NAME: mysql
         ports: 
             - "${DB_PORT}:3306"
+        healthcheck:
+            test: "/etc/init.d/mysql status"
+            interval: 1s
+            retries: 120
         volumes:
             - ./.docker/volumes/mysql/data:/var/lib/mysql
             - ./.docker/volumes/mysql/backup:/data_backup/data
