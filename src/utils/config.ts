@@ -11,6 +11,6 @@ export const config  = {
     DB_USERNAME: process.env.DB_USERNAME,
     DB_PASSWORD: process.env.DB_PASSWORD,
     DB_DATABASE: process.env.DB_DATABASE,
-    SECRETKEY: process.env.SECRKETKEY,
+    SECRETKEY: process.env.SECRETKEY,
     EXPIRESIN: process.env.EXPIRESIN
 }

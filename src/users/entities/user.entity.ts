@@ -4,30 +4,34 @@ import {hash} from 'bcrypt';
 @Entity()
 export class UserEntity {
 
-    @PrimaryGeneratedColumn('uuid') id: string;
     @Column({
         type: 'varchar',
         nullable: false,
         unique: true
     })
-
-    username: string;
+    @PrimaryGeneratedColumn('uuid')
+    id: string;
+    
     @Column({
         type: 'varchar',
         length: 15,
         nullable: false
     })
-
-    password: string;
+    username: string;
+    
     @Column({
         type: 'varchar',
-        length: 24,
+        length: 150,
         nullable: false
     })
+    password: string;
+    
 
     mail: string;
     @BeforeInsert() async hashPassword() {
-        this.password = await hash(this.password, 10);
+        const newpass = await hash(this.password, 10);
+        console.log(newpass);
+        this.password = newpass;
     }
 
 }
