@@ -1,6 +1,6 @@
 import { createConnection } from 'typeorm';
 import { join } from 'path';
-import { config } from './config'
+import { config } from './utils/config'
 
 const { DB_HOST, DB_PORT, DB_USERNAME, DB_PASSWORD, DB_DATABASE } = config;
 

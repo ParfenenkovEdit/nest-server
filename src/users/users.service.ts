@@ -1,44 +1,71 @@
-import { Inject, Injectable } from "@nestjs/common";
+import { HttpException, HttpStatus, Inject, Injectable } from "@nestjs/common";
 import { CreateUserDto } from "./dto/create-user.dto";
 import { UpdateUserDto } from "./dto/update-user.dto";
-import { User } from "./entities/user.entity";
+import { UserEntity } from "./entities/user.entity";
 import { Repository } from "typeorm";
+import { InjectRepository } from "@nestjs/typeorm";
+import { toUserDto } from "./dto/toUserDto";
+import { UserDto } from "./dto/user.dto";
+import { LoginUserDto } from "./dto/login-user.dto";
+import { comparePasswords } from "../utils/password-comparator";
 
 @Injectable()
 export class UsersService {
     constructor(
-        @Inject('USER_REPOSITORY')
-        private userRepository: Repository<User>,
+        @InjectRepository(UserEntity)
+        private readonly userRepository: Repository<UserEntity>,
     ) {}
 
 
-    async getAll(): Promise<User[]> {
-        return this.userRepository.find();
+    async getAll(): Promise<UserDto[]> {
+        const users = await this.userRepository.find();
+
+        return users.map(toUserDto);
     }
 
-    async findOneById(id: number): Promise<User | undefined> {
-        return this.userRepository.findOne({ user_id: id });
-    }
-
-    async findOne(name: string): Promise<User | undefined> {
-        return this.userRepository.findOne({ name: name });
-    }
-
-    async create(createUserDto: CreateUserDto): Promise<User> {
-
-        const user = new User();
-
-        user.name = createUserDto.name;
-        user.mail = createUserDto.mail;
-        user.password = createUserDto.password;
-
-        await this.userRepository.insert(user);
-        
+    async findOne(options?: object): Promise<UserEntity> {
+        const user = await this.userRepository.findOne(options);
         return user;
     }
 
-    async update(id: number, updateUserDto: UpdateUserDto): Promise<User> {
-        const user = await this.findOneById(id);
+    async findByLogin({ username, password }: LoginUserDto): Promise<UserDto> {
+        const user = await this.userRepository.findOne({ where: { username }});
+
+        if(!user) {
+            throw new HttpException('User not found', HttpStatus.UNAUTHORIZED);
+        }
+
+        const areEqual = await comparePasswords(user.password, password);
+        if (!areEqual) {
+            throw new HttpException('Invalid credenticals', HttpStatus.UNAUTHORIZED);
+        }
+
+        return toUserDto(user);
+    }
+
+    async findByPayload({ username }: any): Promise<UserDto> {
+        return await this.findOne({
+            where: { username }
+        })
+    }
+
+    async create(createUserDto: CreateUserDto): Promise<UserDto> {
+        const { username, password, mail } = createUserDto;
+
+        const userInDb = await this.findOne({ where: { username }});
+        
+        if (userInDb) {
+            throw new HttpException('User already exists', HttpStatus.BAD_REQUEST);
+        }
+
+        const user: UserEntity = await this.userRepository.create({ username, password, mail });
+        await this.userRepository.save(user);
+
+        return toUserDto(user);
+    }
+
+    async update(id: string, updateUserDto: UpdateUserDto): Promise<UserDto> {
+        const user = await this.findOne({ id });
         
         Object.keys(updateUserDto).forEach(key => {
             if (updateUserDto[key]) {
@@ -48,12 +75,12 @@ export class UsersService {
 
         await this.userRepository.save(user);
 
-        return user;
+        return toUserDto(user);
 
     }
 
-    async remove(id: number) {
-        const user = await this.findOneById(id);
+    async remove(id: string) {
+        const user = await this.findOne({ id });
         await this.userRepository.remove(user);
         return;
     }

@@ -1,5 +1,6 @@
 import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Post, Put } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
+import { toUserDto } from './dto/toUserDto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UsersService } from './users.service';
 
@@ -12,8 +13,9 @@ export class UsersController {
     }
 
     @Get(':id')
-    getById(@Param('id') id: number) {
-        return this.userService.findOneById(id);
+    async getById(@Param('id') id: string) {
+        const user = await this.userService.findOne({ id })
+        return toUserDto(user);
     }
 
     @Post()
@@ -23,12 +25,12 @@ export class UsersController {
 
     @Delete(':id')
     @HttpCode(HttpStatus.NO_CONTENT)
-    remove(@Param('id') id: number) {
+    remove(@Param('id') id: string) {
         return this.userService.remove(id);
     }
 
     @Put(':id')
-    update(@Param('id') id: number, @Body() updateUserDto: UpdateUserDto) {
+    update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
         return this.userService.update(id, updateUserDto);
     }
 }

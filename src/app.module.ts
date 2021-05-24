@@ -3,6 +3,7 @@ import { UsersModule } from 'src/users/users.module';
 import { RedisMiddleware } from './middlewares/redis.middleware';
 import { AuthModule } from './auth/auth.module';
 import { AppController } from './app.controller';
+import { UsersController } from './users/users.controller';
 
 
 @Module({
@@ -14,6 +15,6 @@ import { AppController } from './app.controller';
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer.apply(RedisMiddleware).forRoutes('users');
+    consumer.apply(RedisMiddleware).forRoutes();
   }
 }
